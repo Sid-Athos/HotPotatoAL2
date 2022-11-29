@@ -1,23 +1,58 @@
-use serde::{Deserialize, Serialize};
-use std::fmt::format;
+use std::any::type_name;
+use crate::messages::base_message::message_crate::Message;
 
-pub fn base_message() {
+pub mod message_crate {
+    use std::any::type_name;
+    use serde::{Deserialize, Serialize};
+    use std::fmt::format;
     #[derive(Serialize, Deserialize, Debug)]
-    struct Message {
-        message: String,
+    pub struct Message {
+        pub message: String,
     }
 
-    impl Message {
-        fn new(buf: Vec<u8>) -> Self {
+    pub struct OtherMessage {
+        pub message: String,
+        pub some_other_value: u32
+    }
+
+     pub trait MessageBehaviourTrait {
+        fn new_from_buffer(buf: Vec<u8>) -> Self;
+
+        fn new_from_string(str: &str) -> Self;
+
+        fn display_item_type<T>(item: T);
+
+        fn display_message(message: &Message);
+
+        fn to_json(&self) -> String;
+
+        fn from_str(str: &str) -> Self;
+    }
+    impl MessageBehaviourTrait for Message {
+         fn new_from_buffer(buf: Vec<u8>) -> Message {
             let message = String::from_utf8_lossy(&buf).to_string();
             return Message { message };
+        }
+
+        fn new_from_string(str: &str) -> Self {
+            let message = str.to_string();
+            return Message { message };
+        }
+
+        fn display_item_type<T>(item: T) {
+            println!("{}",type_name::<T>())
+        }
+
+        fn display_message(message: &Message) {
+            let message = &message.message;
+            println!("{message}")
         }
 
         fn to_json(&self) -> String {
             serde_json::to_string(self).unwrap()
         }
 
-        fn from_str(str: &String) -> Self {
+        fn from_str(str: &str) -> Self {
             let deserialized = serde_json::from_str::<Message>(&str);
             match deserialized {
                 Ok(_) => {
@@ -30,4 +65,6 @@ pub fn base_message() {
             }
         }
     }
+
 }
+
