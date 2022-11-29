@@ -1,2 +1,3 @@
-pub mod message_interface;
-pub mod message;
+pub mod messages;
+pub mod base_message;
+pub mod messages_types_structs;
