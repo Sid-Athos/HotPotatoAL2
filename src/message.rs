@@ -20,7 +20,6 @@ impl Message {
         let deserialized = serde_json::from_str::<Message>(&str);
         match deserialized {
             Ok(_) => {
-                println!("deserialized = {:?}", deserialized);
                 return deserialized.unwrap();
             }
             Err(_) => {
@@ -55,6 +54,10 @@ fn main() {
     let message = Message {
         message: "test".to_string(),
     };
+
     let json_message = message.to_json();
     println!("{json_message}");
+
+    let deserialized = Message::from_str(&json_message);
+    println!("{item}", item=deserialized.message);
 }
