@@ -3,22 +3,11 @@ use std::any::type_name;
 pub mod message_crate {
     use std::any::type_name;
     use std::fmt::format;
-    use crate::messages::messages_types_structs::message_structs::Message;
+    use crate::messages::messages_types_structs::message_structs::{Message};
+    use crate::messages::message_traits::message_traits::MessageBehaviourTrait;
 
 
-    pub trait MessageBehaviourTrait {
-        fn new_from_buffer(buf: Vec<u8>) -> Self;
 
-        fn new_from_string(str: &str) -> Self;
-
-        fn display_item_type<T>(item: T);
-
-        fn display_message(message: &Message);
-
-        fn to_json(&self) -> String;
-
-        fn from_str(str: &str) -> Self;
-    }
     impl MessageBehaviourTrait for Message {
          fn new_from_buffer(buf: Vec<u8>) -> Message {
             let message = String::from_utf8_lossy(&buf).to_string();

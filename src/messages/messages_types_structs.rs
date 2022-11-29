@@ -12,4 +12,5 @@ pub mod message_structs {
         BaseMessage(Message),
         OtherMessage(OtherMessage, u32, String)
     }
+
 }
