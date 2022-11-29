@@ -8,4 +8,8 @@ pub mod message_structs {
         pub message: String,
         pub some_other_value: u32
     }
+    pub enum MessageEnum {
+        BaseMessage(Message),
+        OtherMessage(OtherMessage, u32, String)
+    }
 }

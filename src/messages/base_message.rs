@@ -2,7 +2,6 @@ use std::any::type_name;
 
 pub mod message_crate {
     use std::any::type_name;
-    use serde::{Deserialize, Serialize};
     use std::fmt::format;
     use crate::messages::messages_types_structs::message_structs::Message;
 
