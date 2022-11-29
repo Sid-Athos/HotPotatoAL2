@@ -1,6 +1,7 @@
 mod messages;
 
-use crate::messages::base_message::message_crate::{Message as UseMessage, MessageBehaviourTrait};
+use crate::messages::base_message::message_crate::{MessageBehaviourTrait};
+use crate::messages::messages_types_structs::message_structs::{Message as UseMessage};
 
 fn main() {
     let message = UseMessage::new_from_string("test");

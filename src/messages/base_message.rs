@@ -1,21 +1,13 @@
 use std::any::type_name;
-use crate::messages::base_message::message_crate::Message;
 
 pub mod message_crate {
     use std::any::type_name;
     use serde::{Deserialize, Serialize};
     use std::fmt::format;
-    #[derive(Serialize, Deserialize, Debug)]
-    pub struct Message {
-        pub message: String,
-    }
+    use crate::messages::messages_types_structs::message_structs::Message;
 
-    pub struct OtherMessage {
-        pub message: String,
-        pub some_other_value: u32
-    }
 
-     pub trait MessageBehaviourTrait {
+    pub trait MessageBehaviourTrait {
         fn new_from_buffer(buf: Vec<u8>) -> Self;
 
         fn new_from_string(str: &str) -> Self;
