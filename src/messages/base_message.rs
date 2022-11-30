@@ -1,13 +1,7 @@
-use std::any::type_name;
-
 pub mod message_crate {
     use std::any::type_name;
-    use std::fmt::format;
     use crate::messages::messages_types_structs::message_structs::{Message};
-    use crate::messages::message_traits::message_traits::MessageBehaviourTrait;
-
-
-
+    use crate::messages::messages_traits::message_traits::MessageBehaviourTrait;
     impl MessageBehaviourTrait for Message {
          fn new_from_buffer(buf: Vec<u8>) -> Message {
             let message = String::from_utf8_lossy(&buf).to_string();
@@ -19,7 +13,7 @@ pub mod message_crate {
             return Message { message };
         }
 
-        fn display_item_type<T>(item: T) {
+        fn display_item_type<T>(_item: T) {
             println!("{}",type_name::<T>())
         }
 
@@ -45,6 +39,5 @@ pub mod message_crate {
             }
         }
     }
-
 }
 

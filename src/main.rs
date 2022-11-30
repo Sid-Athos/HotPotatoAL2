@@ -1,6 +1,6 @@
 mod messages;
 
-use crate::messages::message_traits::message_traits::{MessageBehaviourTrait};
+use crate::messages::messages_traits::message_traits::{MessageBehaviourTrait};
 use crate::messages::messages_types_structs::message_structs::{Message as UseMessage};
 
 fn main() {
