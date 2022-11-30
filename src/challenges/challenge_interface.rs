@@ -1,4 +1,14 @@
-trait Challenge {
+pub trait ChallengeInput {
+    // Create message based on JSON format
+    fn from_str(str: &String) -> Self;
+}
+
+pub trait ChallengeOutput {
+    // return the string JSON format of this object
+    fn to_json(&self) -> String;
+}
+
+pub trait Challenge {
     /// Données en entrée du challenge
     type Input;
 
