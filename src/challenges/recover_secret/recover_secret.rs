@@ -1,18 +1,9 @@
-use crate::challenges::challenge_interface::Challenge;
-
-pub struct RecoverSecretInput {
-    pub word_count: usize,
-    pub letters: String,
-    pub tuple_sizes: Vec<usize>,
-}
-
-pub struct RecoverSecretOutput {
-    pub secret_sentence: String,
-}
+use crate::challenges::challenge_interface::ChallengeTrait;
+use crate::challenges::recover_secret::{RecoverSecretInput, RecoverSecretOutput};
 
 pub struct RecoverSecretChallenge {}
 
-impl Challenge for RecoverSecretChallenge {
+impl ChallengeTrait for RecoverSecretChallenge {
     type Input = RecoverSecretInput;
     type Output = RecoverSecretOutput;
 

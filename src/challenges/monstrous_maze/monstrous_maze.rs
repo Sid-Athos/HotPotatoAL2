@@ -1,17 +1,9 @@
-use crate::challenges::challenge_interface::Challenge;
-
-pub struct MonstrousMazeInput {
-    pub grid: String,
-    pub endurance: u32,
-}
-
-pub struct MonstrousMazeOutput {
-    pub path: String,
-}
+use crate::challenges::challenge_interface::ChallengeTrait;
+use crate::challenges::monstrous_maze::{MonstrousMazeInput, MonstrousMazeOutput};
 
 pub struct MonstrousMazeChallenge {}
 
-impl Challenge for MonstrousMazeChallenge {
+impl ChallengeTrait for MonstrousMazeChallenge {
     type Input = MonstrousMazeInput;
     type Output = MonstrousMazeOutput;
 

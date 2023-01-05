@@ -1,19 +1,11 @@
-use crate::challenges::challenge_interface::Challenge;
-
-pub struct NonogramInput {
-    pub rows: Vec<Vec<u32>>,
-    pub cols: Vec<Vec<u32>>,
-}
-
-pub struct NonogramOutput {
-    pub grid: String,
-}
+use crate::challenges::challenge_interface::ChallengeTrait;
+use crate::challenges::nonogram::{NonogramSolverInput, NonogramSolverOutput};
 
 pub struct NonogramChallenge {}
 
-impl Challenge for NonogramChallenge {
-    type Input = NonogramInput;
-    type Output = NonogramOutput;
+impl ChallengeTrait for NonogramChallenge {
+    type Input = NonogramSolverInput;
+    type Output = NonogramSolverOutput;
 
     fn name() -> String {
         return "Nonogram".to_string();

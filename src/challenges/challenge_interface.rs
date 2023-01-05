@@ -1,14 +1,14 @@
-pub trait ChallengeInput {
+pub trait ChallengeInputTrait {
     // Create message based on JSON format
-    fn from_str(str: &String) -> Self;
+    //fn from_str(str: &String) -> Self;
 }
 
-pub trait ChallengeOutput {
+pub trait ChallengeOutputTrait {
     // return the string JSON format of this object
-    fn to_json(&self) -> String;
+    //fn to_json(&self) -> String;
 }
 
-pub trait Challenge {
+pub trait ChallengeTrait {
     /// Données en entrée du challenge
     type Input;
 
