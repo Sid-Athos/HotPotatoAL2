@@ -32,12 +32,12 @@ impl MessageType {
         }
     }
 
-    pub fn deserialize_from_buffer(buf: Vec<u8>) -> MessageType {
+    pub fn deserialize_from_buffer(buf: &Vec<u8>) -> MessageType {
         let message = String::from_utf8_lossy(&buf).to_string();
-        return MessageType::deserialize_from_string(message);
+        return MessageType::deserialize_from_string(&message);
     }
 
-    pub fn deserialize_from_string(str: String) -> MessageType {
+    pub fn deserialize_from_string(str: &String) -> MessageType {
         let deserialized = serde_json::from_str::<MessageType>(&str);
         match deserialized {
             Ok(ok) => {
@@ -70,7 +70,7 @@ mod tests {
         let serialized = message.serialize_to_json();
         assert_eq!(serialized,
                    "\"Hello\"");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -82,7 +82,7 @@ mod tests {
                    "{\
                         \"Welcome\":{\"version\":1}\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -94,7 +94,7 @@ mod tests {
                    "{\
                         \"Subscribe\":{\"name\":\"free_patato\"}\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -106,7 +106,7 @@ mod tests {
                    "{\
                         \"SubscribeResult\":{\"Err\":\"InvalidName\"}\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -125,7 +125,7 @@ mod tests {
                             {\"name\":\"dark_salad\",\"stream_id\":\"127.0.0.1\",\"score\":6,\"steps\":200,\"is_active\":true,\"total_used_time\":0.1234}\
                         ]\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -143,7 +143,7 @@ mod tests {
         assert_eq!(serialized, "{\
                                     \"Challenge\":{\"MD5HashCash\":{\"complexity\":5,\"message\":\"Hello\"}}\
                                 }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -161,7 +161,7 @@ mod tests {
                             \"next_target\":\"dark_salad\"\
                        }\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -175,7 +175,7 @@ mod tests {
                    "{\
                         \"ChallengeTimeout\":{\"message\":\"You've been fired!\"}\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -199,7 +199,7 @@ mod tests {
                             ]\
                        }\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 
@@ -219,7 +219,7 @@ mod tests {
                             ]\
                         }\
                    }");
-        let deserialized = MessageType::deserialize_from_string(serialized);
+        let deserialized = MessageType::deserialize_from_string(&serialized);
         assert_eq!(deserialized, message);
     }
 }
