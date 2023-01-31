@@ -1,3 +1,5 @@
+extern crate core;
+
 mod messages;
 mod common;
 mod challenges;

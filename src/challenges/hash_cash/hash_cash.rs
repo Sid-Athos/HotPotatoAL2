@@ -29,8 +29,6 @@ impl ChallengeTrait for MD5HashCashChallenge {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn it_works() {
 
