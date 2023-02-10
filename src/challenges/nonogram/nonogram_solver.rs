@@ -1,7 +1,9 @@
 use crate::challenges::challenge_interface::ChallengeTrait;
 use crate::challenges::nonogram::{NonogramSolverInput, NonogramSolverOutput};
 
-pub struct NonogramChallenge {}
+pub struct NonogramChallenge {
+    input: NonogramSolverInput,
+}
 
 impl ChallengeTrait for NonogramChallenge {
     type Input = NonogramSolverInput;
@@ -12,7 +14,9 @@ impl ChallengeTrait for NonogramChallenge {
     }
 
     fn new(input: Self::Input) -> Self {
-        todo!()
+        return NonogramChallenge{
+            input
+        }
     }
 
     fn solve(&self) -> Self::Output {

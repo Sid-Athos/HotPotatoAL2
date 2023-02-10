@@ -11,11 +11,13 @@ impl ChallengeTrait for MD5HashCashChallenge {
     type Output = MD5HashCashOutput;
 
     fn name() -> String {
-        return "HashCash".to_string();
+        return "MD5HashCash".to_string();
     }
 
     fn new(input: Self::Input) -> Self {
-        todo!()
+        return MD5HashCashChallenge{
+            input
+        };
     }
 
     fn solve(&self) -> Self::Output {

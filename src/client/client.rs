@@ -1,7 +1,11 @@
 use std::io;
 use std::io::{Read, stdin, Write};
 use std::net::{TcpListener, TcpStream};
-use crate::challenges::{Challenge, ReportedChallengeResult};
+use crate::challenges::{Challenge, ChallengeAnswer, ChallengeTrait, ReportedChallengeResult};
+use crate::challenges::hash_cash::{MD5HashCashChallenge, MD5HashCashInput, MD5HashCashOutput};
+use crate::challenges::monstrous_maze::MonstrousMazeChallenge;
+use crate::challenges::nonogram::NonogramChallenge;
+use crate::challenges::recover_secret::RecoverSecretChallenge;
 use crate::common::PublicPlayer;
 use crate::error::ClientConnexionError;
 use crate::messages::{SubscribeError, SubscribeResult};
@@ -146,6 +150,7 @@ impl Client {
             }
             MessageType::EndOfGame { leader_board } => {
                 self.on_receive_end_of_game_message(leader_board);
+                self.is_connected = false;
             }
             _ => {
                 println!("Unknown received message");
@@ -154,13 +159,9 @@ impl Client {
     }
 
     fn on_receive_welcome_message(&mut self, version: &u8) -> Result<(), ClientConnexionError> {
-        let mut input = String::new();
         self.game_version = *version;
         println!("Game version : {}", self.game_version.to_string());
         println!("Enter your name :");
-
-        //stdin().read_line(&mut input).expect("Did not enter a correct string");
-        //self.send_message(MessageType::Subscribe {name: input.to_string()})
 
         self.send_message(MessageType::Subscribe {name: self.pseudo.clone()})
     }
@@ -192,6 +193,40 @@ impl Client {
 
     fn on_receive_challenge_message(&mut self, challenge: &Challenge) {
         println!("{}", challenge.to_string());
+        let mut challenge_res: ChallengeAnswer;
+        let mut is_valid_res: bool = false;
+        match challenge {
+            Challenge::MD5HashCash(input) => {
+                let challenge = MD5HashCashChallenge::new(input);
+                let output = challenge.solve();
+                is_valid_res = challenge.verify(&output);
+                challenge_res = ChallengeAnswer::MD5HashCash(output);
+            }
+            Challenge::MonstrousMaze(input) => {
+                let challenge = MonstrousMazeChallenge::new(input);
+                let output = challenge.solve();
+                is_valid_res = challenge.verify(&output);
+                challenge_res = ChallengeAnswer::MonstrousMaze(output);
+            }
+            Challenge::RecoverSecret(input) => {
+                let challenge = RecoverSecretChallenge::new(input);
+                let output = challenge.solve();
+                is_valid_res = challenge.verify(&output);
+                challenge_res = ChallengeAnswer::RecoverSecret(output);
+            }
+            Challenge::NonogramSolver(input) => {
+                let challenge = NonogramChallenge::new(input);
+                let output = challenge.solve();
+                is_valid_res = challenge.verify(&output);
+                challenge_res = ChallengeAnswer::NonogramSolver(output);
+            }
+        }
+        if res {
+            self.send_message(MessageType::ChallengeResult {
+                answer: challenge_res,
+                next_target: "".to_string(),
+            })
+        }
     }
 
     fn on_receive_challenge_timeout_message(&mut self, message: &String) {

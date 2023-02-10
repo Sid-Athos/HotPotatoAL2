@@ -1,7 +1,9 @@
 use crate::challenges::challenge_interface::ChallengeTrait;
 use crate::challenges::recover_secret::{RecoverSecretInput, RecoverSecretOutput};
 
-pub struct RecoverSecretChallenge {}
+pub struct RecoverSecretChallenge {
+    input: RecoverSecretInput,
+}
 
 impl ChallengeTrait for RecoverSecretChallenge {
     type Input = RecoverSecretInput;
@@ -12,7 +14,9 @@ impl ChallengeTrait for RecoverSecretChallenge {
     }
 
     fn new(input: Self::Input) -> Self {
-        todo!()
+        return RecoverSecretChallenge{
+            input
+        }
     }
 
     fn solve(&self) -> Self::Output {

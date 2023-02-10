@@ -1,7 +1,9 @@
 use crate::challenges::challenge_interface::ChallengeTrait;
 use crate::challenges::monstrous_maze::{MonstrousMazeInput, MonstrousMazeOutput};
 
-pub struct MonstrousMazeChallenge {}
+pub struct MonstrousMazeChallenge {
+    input: MonstrousMazeInput,
+}
 
 impl ChallengeTrait for MonstrousMazeChallenge {
     type Input = MonstrousMazeInput;
@@ -12,7 +14,9 @@ impl ChallengeTrait for MonstrousMazeChallenge {
     }
 
     fn new(input: Self::Input) -> Self {
-        todo!()
+        return MonstrousMazeChallenge{
+            input
+        }
     }
 
     fn solve(&self) -> Self::Output {
