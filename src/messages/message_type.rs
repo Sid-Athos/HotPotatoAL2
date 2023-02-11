@@ -1,6 +1,6 @@
 use std::fmt;
 use serde::{Deserialize, Serialize};
-use crate::challenges::{Challenge, ChallengeAnswer, ChallengeTrait, ReportedChallengeResult};
+use crate::challenges::{Challenge, ChallengeAnswer, ReportedChallengeResult};
 use crate::common::PublicPlayer;
 use crate::messages::SubscribeResult;
 
@@ -89,7 +89,7 @@ mod tests {
     #[test]
     fn serialize_deserialize_subscribe_message() {
         let message = MessageType::Subscribe { name: "free_patato".to_string() };
-        let serialized = message.serialize_to_json();
+        let mut serialized = message.serialize_to_json();
         assert_eq!(serialized,
                    "{\
                         \"Subscribe\":{\"name\":\"free_patato\"}\
