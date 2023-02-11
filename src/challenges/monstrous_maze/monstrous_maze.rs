@@ -59,7 +59,7 @@ impl ChallengeTrait for MonstrousMazeChallenge {
 
                 //attribuer un chiffre à un charactère dans le tableau de sauvegarde
                 match charact{
-                    START => {
+                    MonstrousMazeChallenge::START => {
                         start.x = abscissa;
                         start.y = ordinate;
                         current_cell.x = abscissa;
@@ -67,13 +67,13 @@ impl ChallengeTrait for MonstrousMazeChallenge {
                         maze_tab_row_work.push(2);
                         flag = 1;
                     },
-                    MONSTER => {
+                    MonstrousMazeChallenge::MONSTER => {
                         maze_tab_row_work.push(4);
                     },
-                    EXIT => {
+                    MonstrousMazeChallenge::EXIT => {
                         maze_tab_row_work.push(3);
                     },
-                    FREE_SPACE=> {
+                    MonstrousMazeChallenge::FREE_SPACE=> {
                         maze_tab_row_work.push(0);
                     },
                     _=> maze_tab_row_work.push(5)
@@ -93,8 +93,8 @@ impl ChallengeTrait for MonstrousMazeChallenge {
         }
 
         //Def variable globale
-        infos.y_max = maze_tab[0].len() ;
-        infos.x_max = maze_tab.len()  ;
+        infos.y_max = maze_tab[0].len();
+        infos.x_max = maze_tab.len() ;
 
         let mut stack = stack::Stack::new();
         let mut path = stack::Stack::new();
@@ -154,11 +154,10 @@ impl ChallengeTrait for MonstrousMazeChallenge {
                             }
                         }else{
                             //println!("no direction");
-                            if let Some(ancien) = stack.pop(){
-                                //println!("ancien {} {} nouveau {} {}", ancien.x, ancien.y,joueur.x, joueur.y );
+                            if let Some(old_cell) = stack.pop(){
                                 maze_tab_save[current_cell.x][current_cell.y] = 1 ;
-                                current_cell.x = ancien.x;
-                                current_cell.y = ancien.y;
+                                current_cell.x = old_cell.x;
+                                current_cell.y = old_cell.y;
                                 maze_tab_save[current_cell.x][current_cell.y]  = 2 ;
                             }
                             path.pop();
@@ -167,15 +166,14 @@ impl ChallengeTrait for MonstrousMazeChallenge {
                 }
             }
         }
-        for element in &stack.elements {
-            maze_tab[element.x][element.y] = '#';
-        }
 
         let str:String = MonstrousMazeChallenge::write_path_to_string(path);
 
         let output = MonstrousMazeOutput{
             path: str.to_string(),
         };
+
+        println!("{}", str.to_string());
 
         return output;
     }
@@ -195,22 +193,28 @@ impl MonstrousMazeChallenge {
     const RIGHT: char = '>';
     const LEFT: char = '<';
 
-    /// déplacement vers le haut
+    /// fonction de déplacement vers le haut
     fn up(current_cell: &mut Cell, maze_tab_save:&mut Vec<Vec<usize>>){
         maze_tab_save[current_cell.x][current_cell.y] = 1 ;
         current_cell.x = current_cell.x-1;
         maze_tab_save[current_cell.x][current_cell.y]  = 2 ;
     }
+
+    /// fonction de déplacement vers la droite
     fn right(current_cell: &mut Cell, maze_tab_save:&mut Vec<Vec<usize>>){
         maze_tab_save[current_cell.x][current_cell.y] = 1 ;
         current_cell.y = current_cell.y+1;
         maze_tab_save[current_cell.x][current_cell.y]  = 2 ;
     }
+
+    /// fonction de déplacement vers le bas
     fn down(current_cell: &mut Cell, maze_tab_save:&mut Vec<Vec<usize>>){
         maze_tab_save[current_cell.x][current_cell.y] = 1 ;
         current_cell.x = current_cell.x+1;
         maze_tab_save[current_cell.x][current_cell.y]  = 2 ;
     }
+
+    /// fonction de déplacement vers la gauche
     fn left(current_cell: &mut Cell, maze_tab_save:&mut Vec<Vec<usize>>){
         maze_tab_save[current_cell.x][current_cell.y] = 1 ;
         current_cell.y = current_cell.y-1;
@@ -307,7 +311,7 @@ mod tests {
     use crate::challenges::monstrous_maze::{MonstrousMazeChallenge, MonstrousMazeInput};
 
     #[test]
-    fn resolve_example_maze(){
+    fn resolve_simple_maze(){
         let input = MonstrousMazeInput {
             grid: "│Y M X│".to_string(),
             endurance : 2,
