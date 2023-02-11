@@ -38,7 +38,7 @@ impl ChallengeTrait for MonstrousMazeChallenge {
             condition : Vec::from([MonstrousMazeChallenge::MONSTER, MonstrousMazeChallenge::FREE_SPACE, MonstrousMazeChallenge::EXIT, MonstrousMazeChallenge::START]),
             y_max: 0,
             x_max: 0,
-            endurance: Self.input.endurance,
+            endurance: self.input.endurance,
         };
 
         // flag pour savoir si on a bien trouvé le caractère de début
@@ -48,7 +48,7 @@ impl ChallengeTrait for MonstrousMazeChallenge {
         let mut maze_tab_save = Vec::new();
 
         // lecture de la String
-        for row in Self.input.grid.split('\n'){
+        for row in self.input.grid.split('\n'){
             println!("{}", row);
             let mut maze_tab_row = Vec::new(); //tableau identique au fichier
             let mut maze_tab_row_work = Vec::new(); //tableau de 1 0 -1 pour save ou on est passé
@@ -303,18 +303,19 @@ impl MonstrousMazeChallenge {
 
 #[cfg(test)]
 mod tests {
-    use crate::challenges::monstrous_maze::MonstrousMazeInput;
+    use crate::challenges::ChallengeTrait;
+    use crate::challenges::monstrous_maze::{MonstrousMazeChallenge, MonstrousMazeInput};
 
     #[test]
     fn resolve_example_maze(){
-        let maze = "│Y M X│";
-        let endurance = 2;
-
         let input = MonstrousMazeInput {
-            grid: maze.to_string(),
-            endurance : endurance,
+            grid: "│Y M X│".to_string(),
+            endurance : 2,
         };
 
-        assert_eq!(solve(input).grid, ">>>>");
+        let challenge = MonstrousMazeChallenge::new(input);
+        let challenge_output = challenge.solve();
+
+        assert_eq!(challenge_output.path, ">>>>");
     }
 }

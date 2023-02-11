@@ -140,7 +140,7 @@ impl Client {
                 self.on_receive_public_leader_board_message(players);
             }
             MessageType::Challenge(challenge) => {
-                self.on_receive_challenge_message(challenge);
+                //self.on_receive_challenge_message(challenge);
             }
             MessageType::ChallengeTimeout { message } => {
                 self.on_receive_challenge_timeout_message(message);
@@ -190,7 +190,7 @@ impl Client {
             println!("{}", player.name);
         }
     }
-
+/*
     fn on_receive_challenge_message(&mut self, challenge: &Challenge) {
         println!("{}", challenge.to_string());
         let mut challenge_res: ChallengeAnswer;
@@ -221,14 +221,14 @@ impl Client {
                 challenge_res = ChallengeAnswer::NonogramSolver(output);
             }
         }
-        if res {
+        if is_valid_res {
             self.send_message(MessageType::ChallengeResult {
                 answer: challenge_res,
                 next_target: "".to_string(),
             })
         }
     }
-
+*/
     fn on_receive_challenge_timeout_message(&mut self, message: &String) {
         println!("{}", message);
     }
