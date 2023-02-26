@@ -1,4 +1,7 @@
-pub mod base_message;
-pub mod messages_types_structs;
-pub mod messages_types_enum;
-pub mod messages_traits;
+pub mod message_type;
+pub mod subscribe_result;
+pub mod subscribe_error;
+
+pub use message_type::MessageType;
+pub use subscribe_result::SubscribeResult;
+pub use subscribe_error::SubscribeError;
