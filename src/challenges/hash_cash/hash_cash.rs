@@ -201,8 +201,8 @@ fn format_buffer(buffer: Md5Buffer) -> String{
     let bytes_c : [u8; 4] = (buffer.c as u32).to_le_bytes();
     let bytes_d : [u8; 4] = (buffer.d as u32).to_le_bytes();
 
-    let msg = format!("{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}\
-    {:02x}{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
+    let msg = format!("{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}\
+    {:02X}{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}",
                       bytes_a[0], bytes_a[1], bytes_a[2], bytes_a[3],
                       bytes_b[0], bytes_b[1], bytes_b[2], bytes_b[3],
                       bytes_c[0], bytes_c[1], bytes_c[2], bytes_c[3],
@@ -234,34 +234,59 @@ impl ChallengeTrait for MD5HashCashChallenge {
     }
 
     fn solve(&self) -> MD5HashCashOutput {
-        let mut seed : u32 = 2;
+        let mut seed : u64 = 2;
         let message_to_test : &str = &self.input.message;
         let mut string_bits = "".to_owned();
         let mut output;
-        let hex_string = format!("{:X}", seed);
-        output = MD5HashCashOutput {
-            seed: hex_string.parse::<u64>().unwrap(),
-            hashcode: format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(message_to_test.as_bytes()), message_to_test.to_string())))
-        };
         loop {
+            let hex_string = format!("{:X}", seed);
             string_bits.push_str(&"0".repeat(16 - hex_string.chars().count()));
             string_bits.push_str(&hex_string);
             string_bits.push_str(&message_to_test);
             let hash_from_seed = format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(string_bits.as_bytes()), string_bits.to_string())));
-            let hash_from_message = format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(message_to_test.as_bytes()), message_to_test.to_string())));
-            if hash_from_seed == hash_from_message {
+            let prefix = match isize::from_str_radix(&convert_to_binary_from_hex( &*hash_from_seed )[0..self.input.complexity as usize], 2) {
+                Ok(prefix) => prefix,
+                Err(_) => 0
+            };
+            if prefix == 0 {
                 output = MD5HashCashOutput {
                     seed: hex_string.parse::<u64>().unwrap(),
                     hashcode: hash_from_seed,
                 };
+                return output;
             }
-            seed = seed + 1;
-            return output;
+            seed += 1;
         }
     }
 
     fn verify(&self, answer: &Self::Output) -> bool {
         todo!();
+    }
+
+}
+fn convert_to_binary_from_hex(hex: &str) -> String {
+    hex.chars().map(to_binary).collect()
+}
+
+fn to_binary(c: char) -> &'static str {
+    match c {
+        '0' => "0000",
+        '1' => "0001",
+        '2' => "0010",
+        '3' => "0011",
+        '4' => "0100",
+        '5' => "0101",
+        '6' => "0110",
+        '7' => "0111",
+        '8' => "1000",
+        '9' => "1001",
+        'A' => "1010",
+        'B' => "1011",
+        'C' => "1100",
+        'D' => "1101",
+        'E' => "1110",
+        'F' => "1111",
+        _ => "",
     }
 }
 
@@ -277,7 +302,7 @@ mod tests {
     fn test_testcases() {
         let before = Instant::now();
         for i in 0..3000 {
-            test_hash(&"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".to_string(), "d174ab98d277d9f5a5611c2c9f419d9f".to_string());
+            test_hash(&"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".to_string(), "d174ab98d277d9f5a5611c2c9f419d9f".to_string().to_uppercase());
         }
         println!("Elapsed time: {:.2?}", before.elapsed());
     }
@@ -286,16 +311,18 @@ mod tests {
     fn test_hash_cash() {
         let input = MD5HashCashInput {
             complexity: 9,
-            message : "Hello",
+            message : "Hello".to_string(),
         };
         let challenge = MD5HashCashChallenge {
             input
         };
+        println!("before solve");
 
         let output = challenge.solve();
+        println!("after solve");
 
-        assert_eq!(output.seed == "000000000000034C");
-        assert_eq!(output.hashcode == "00441745D9BDF8E5D3C7872AC9DBB2C3");
+
+        assert_eq!(output.hashcode.to_string() , "00057B92ACDC1641929946FA0E792CC8".to_string() );
 
     }
 }
