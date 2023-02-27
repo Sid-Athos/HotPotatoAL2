@@ -211,10 +211,12 @@ fn format_buffer(buffer: Md5Buffer) -> String{
     msg
 }
 
+
 pub struct MD5HashCashChallenge {
     input: MD5HashCashInput,
 
 }
+
 
 impl ChallengeTrait for MD5HashCashChallenge {
     type Input = MD5HashCashInput;
@@ -231,31 +233,35 @@ impl ChallengeTrait for MD5HashCashChallenge {
         };
     }
 
-    fn solve(&self) -> Self::Output {
-        let mut solved = false;
+    fn solve(&self) -> MD5HashCashOutput {
         let mut seed : u32 = 2;
-        let message_to_test : &str = &self.0.message;
+        let message_to_test : &str = &self.input.message;
         let mut string_bits = "".to_owned();
-        while !solved {
-            let hex_string = format!("{:X}", seed);
-            string_bits.repeat("0", 16 - hex_string.chars().count());
-            string_bits.push_str(hex_string);
-            string_bits.push_str(message_to_test);
+        let mut output;
+        let hex_string = format!("{:X}", seed);
+        output = MD5HashCashOutput {
+            seed: hex_string.parse::<u64>().unwrap(),
+            hashcode: format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(message_to_test.as_bytes()), message_to_test.to_string())))
+        };
+        loop {
+            string_bits.push_str(&"0".repeat(16 - hex_string.chars().count()));
+            string_bits.push_str(&hex_string);
+            string_bits.push_str(&message_to_test);
             let hash_from_seed = format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(string_bits.as_bytes()), string_bits.to_string())));
             let hash_from_message = format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(message_to_test.as_bytes()), message_to_test.to_string())));
-            if hash_from_message == hash_from_seed {
-                solved = true
+            if hash_from_seed == hash_from_message {
+                output = MD5HashCashOutput {
+                    seed: hex_string.parse::<u64>().unwrap(),
+                    hashcode: hash_from_seed,
+                };
             }
             seed = seed + 1;
+            return output;
         }
     }
 
     fn verify(&self, answer: &Self::Output) -> bool {
-        return if answer.seed > 16 {
-            false
-        } else {
-            true
-        }
+        todo!();
     }
 }
 
@@ -278,14 +284,19 @@ mod tests {
 
     #[test]
     fn test_hash_cash() {
-        let before = Instant::now();
-        for i in 0..10 {
-            let input = HashCashInput {
-                complexity: 9,
-                message : "Hello",
-            };
-        }
-        println!("Elapsed time: {:.2?}", before.elapsed());
+        let input = MD5HashCashInput {
+            complexity: 9,
+            message : "Hello",
+        };
+        let challenge = MD5HashCashChallenge {
+            input
+        };
+
+        let output = challenge.solve();
+
+        assert_eq!(output.seed == "000000000000034C");
+        assert_eq!(output.hashcode == "00441745D9BDF8E5D3C7872AC9DBB2C3");
+
     }
 }
 
