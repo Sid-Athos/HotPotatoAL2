@@ -19,6 +19,8 @@ const USAGE: &str =
 \t-pseudo <your_pseudo>\
 ";
 
+use crate::challenges::hash_cash::MD5HashCashOutput;
+
 fn main() {
     let mut args = env::args();
     let exe = args.next().ok_or(ArgumentsError).expect(USAGE);
