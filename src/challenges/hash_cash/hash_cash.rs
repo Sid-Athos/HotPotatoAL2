@@ -299,15 +299,14 @@ mod tests {
         assert_eq!(format_buffer(ProcessMessage::generate_output(set_up_md_buffer(), transform_into_bytes(append_padding_bits(input.as_bytes()), input.to_string()))), expect);
     }
     #[test]
-    fn test_testcases() {
+    fn test_cases() {
         let before = Instant::now();
-        for i in 0..3000 {
-            test_hash(&"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".to_string(), "d174ab98d277d9f5a5611c2c9f419d9f".to_string().to_uppercase());
-        }
+        test_hash(&"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".to_string(), "d174ab98d277d9f5a5611c2c9f419d9f".to_string().to_uppercase());
+        test_hash_cash();
         println!("Elapsed time: {:.2?}", before.elapsed());
     }
 
-    #[test]
+    
     fn test_hash_cash() {
         let input = MD5HashCashInput {
             complexity: 9,
