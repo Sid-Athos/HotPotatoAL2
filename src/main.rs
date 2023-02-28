@@ -55,6 +55,7 @@ fn main() {
 
     let mut client: Client = Client{
         pseudo,
+        leader_board: None,
         server_connected_ip: "none".to_string(),
         game_version: 0,
         is_connected: false,

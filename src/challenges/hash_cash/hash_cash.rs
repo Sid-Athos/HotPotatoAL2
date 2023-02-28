@@ -290,6 +290,10 @@ fn to_binary(c: char) -> &'static str {
     }
 }
 
+
+
+
+
 #[cfg(test)]
 mod tests {
     use std::time::Instant;

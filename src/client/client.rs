@@ -15,6 +15,7 @@ pub struct Client {
     pub pseudo: String,
     pub server_connected_ip: String,
     pub game_version: u8,
+    pub leader_board: Option<Vec<PublicPlayer>>,
     pub is_connected: bool,
     pub stream: Option<TcpStream>,
     pub listener: Option<TcpListener>
@@ -73,7 +74,7 @@ impl Client {
     fn wait_server_message(&mut self) -> Result<(), ClientConnexionError> {
         let message = self.read_messages();
         let message_type = MessageType::deserialize_from_string(&message?);
-        self.interpret_message(&message_type);
+        self.interpret_message(message_type);
 
         Ok(())
     }
@@ -128,45 +129,46 @@ impl Client {
         }
     }
 
-    pub fn interpret_message(&mut self, message_type: &MessageType) {
+    pub fn interpret_message(&mut self, message_type: MessageType) {
+        let res;
         match message_type {
             MessageType::Welcome { version } => {
-                self.on_receive_welcome_message(version);
+                res = self.on_receive_welcome_message(version);
             }
             MessageType::SubscribeResult(subscribe_result) => {
-                self.on_receive_subscribe_result_message(subscribe_result);
+                res = self.on_receive_subscribe_result_message(subscribe_result);
             }
             MessageType::PublicLeaderBoard(players) => {
-                self.on_receive_public_leader_board_message(players);
+                res = self.on_receive_public_leader_board_message(players);
             }
             MessageType::Challenge(challenge) => {
-                //self.on_receive_challenge_message(challenge);
+                res = self.on_receive_challenge_message(challenge);
             }
             MessageType::ChallengeTimeout { message } => {
-                self.on_receive_challenge_timeout_message(message);
+                res = self.on_receive_challenge_timeout_message(message);
             }
             MessageType::RoundSummary { challenge, chain } => {
-                self.on_receive_round_summary_message(challenge, chain);
+                res = self.on_receive_round_summary_message(challenge, chain);
             }
             MessageType::EndOfGame { leader_board } => {
-                self.on_receive_end_of_game_message(leader_board);
+                res = self.on_receive_end_of_game_message(leader_board);
                 self.is_connected = false;
             }
             _ => {
                 println!("Unknown received message");
             }
         }
+
     }
 
-    fn on_receive_welcome_message(&mut self, version: &u8) -> Result<(), ClientConnexionError> {
-        self.game_version = *version;
+    fn on_receive_welcome_message(&mut self, version: u8) -> Result<(), ClientConnexionError> {
+        self.game_version = version;
         println!("Game version : {}", self.game_version.to_string());
-        println!("Enter your name :");
 
         self.send_message(MessageType::Subscribe {name: self.pseudo.clone()})
     }
 
-    fn on_receive_subscribe_result_message(&mut self, subscribe_result: &SubscribeResult) {
+    fn on_receive_subscribe_result_message(&mut self, subscribe_result: SubscribeResult) -> Result<(), ClientConnexionError> {
         match subscribe_result {
             SubscribeResult::Ok => {
                 println!("You are registered, wait the start of game");
@@ -178,20 +180,20 @@ impl Client {
                     }
                     SubscribeError::InvalidName => {
                         println!("Your name is invalid, please try again");
-                        self.on_receive_welcome_message(&self.game_version.clone());
+                        //self.on_receive_welcome_message(&self.game_version.clone());
                     }
                 }
             }
         }
+        Ok(())
     }
 
-    fn on_receive_public_leader_board_message(&mut self, players: &Vec<PublicPlayer>) {
-        for player in players {
-            println!("{}", player.name);
-        }
+    fn on_receive_public_leader_board_message(&mut self, players: Vec<PublicPlayer>) -> Result<(), ClientConnexionError>{
+        self.leader_board = Option::from(players);
+        Ok(())
     }
-/*
-    fn on_receive_challenge_message(&mut self, challenge: &Challenge) {
+
+    fn on_receive_challenge_message(&mut self, challenge: Challenge) -> Result<(), ClientConnexionError>{
         println!("{}", challenge.to_string());
         let mut challenge_res: ChallengeAnswer;
         let mut is_valid_res: bool = false;
@@ -222,28 +224,69 @@ impl Client {
             }
         }
         if is_valid_res {
-            self.send_message(MessageType::ChallengeResult {
-                answer: challenge_res,
-                next_target: "".to_string(),
-            })
+            let players = self.leader_board.take().ok_or(ClientConnexionError);
+            match players {
+                Ok(players) => {
+                    let principal_target = players.get(0);
+                    let secondary_target = players.get(1);
+                    let mut target: &PublicPlayer;
+                    match principal_target {
+                        None => {
+                            return Err(ClientConnexionError)
+                        }
+                        Some(ok_target) => {
+                            if ok_target.name != self.pseudo {
+                                target = ok_target;
+                            }
+                            else {
+                                match secondary_target {
+                                    None => {
+                                        return Err(ClientConnexionError)
+                                    }
+                                    Some(ok_target) => {
+                                        target = ok_target;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    let res = self.send_message(MessageType::ChallengeResult {
+                        answer: challenge_res,
+                        next_target: target.name.clone(),
+                    });
+                    match res {
+                        Ok(_) => {}
+                        Err(err) => {
+                            return Err(err)
+                        }
+                    }
+                }
+                Err(err) => {
+                    return Err(err)
+                }
+            }
         }
-    }
-*/
-    fn on_receive_challenge_timeout_message(&mut self, message: &String) {
-        println!("{}", message);
+        Ok(())
     }
 
-    fn on_receive_round_summary_message(&mut self, challenge: &String, chain: &Vec<ReportedChallengeResult>) {
+    fn on_receive_challenge_timeout_message(&mut self, message: String) -> Result<(), ClientConnexionError> {
+        println!("{}", message);
+        Ok(())
+    }
+
+    fn on_receive_round_summary_message(&mut self, challenge: String, chain: Vec<ReportedChallengeResult>) -> Result<(), ClientConnexionError> {
         println!("{}", challenge);
         for elem in chain {
             println!("{}", elem.name);
         }
+        Ok(())
     }
 
-    fn on_receive_end_of_game_message(&mut self, leader_board: &Vec<PublicPlayer>) {
+    fn on_receive_end_of_game_message(&mut self, leader_board: Vec<PublicPlayer>) -> Result<(), ClientConnexionError> {
         for player in leader_board {
             println!("{}", player.name);
         }
+        Ok(())
     }
 
 }
@@ -261,12 +304,13 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
         };
         let message = MessageType::Welcome {version: 1};
-        client.interpret_message(&message);
+        client.interpret_message(message);
     }
 
     #[test]
@@ -275,18 +319,19 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
         };
         let message = MessageType::SubscribeResult(SubscribeResult::Ok);
-        client.interpret_message(&message);
+        client.interpret_message(message);
 
         let message = MessageType::SubscribeResult(SubscribeResult::Err(SubscribeError::AlreadyRegistered));
-        client.interpret_message(&message);
+        client.interpret_message(message);
 
         let message = MessageType::SubscribeResult(SubscribeResult::Err(SubscribeError::InvalidName));
-        client.interpret_message(&message);
+        client.interpret_message(message);
     }
 
     #[test]
@@ -295,6 +340,7 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
@@ -307,6 +353,7 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
@@ -319,6 +366,7 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
@@ -331,6 +379,7 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
@@ -343,6 +392,7 @@ mod tests {
             pseudo: "Barlords".to_string(),
             server_connected_ip: "".to_string(),
             game_version: 0,
+            leader_board: None,
             is_connected: false,
             stream: None,
             listener: None,
